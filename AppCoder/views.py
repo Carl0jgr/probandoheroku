@@ -2,7 +2,7 @@ import email
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from AppCoder.models import Estudiante,Curso
-from AppCoder.forms import form_estudiantes, UserRegisterForm, UserEditForm, ChangePasswordForm
+from AppCoder.forms import form_estudiantes, UserRegisterForm, UserEditForm, ChangePasswordForm, AvatarFormulario
 
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
@@ -192,4 +192,21 @@ def changepass(request):
 @login_required
 def perfilView(request):
     return render(request, 'perfil.html')
+
+def AgregarAvatar(request):
+    if request.method == 'POST':
+        form = AvatarFormulario(request.POST, request.File)
+        if form.is_valid():
+            user = User.objects.get(username = request.user)
+            avatar = Avatar(user = user, image =form.cleaned_data['Avatar'], id = request.user.id)
+            avatar.save()
+            avatar = Avatar.objects.filter(user = request.user.id)
+            return render(request, 'home.html', {'avatar': avatar[0].image.url})
+    else:
+        try:
+            avatar = Avatar.objects.filter(user = request.user.id)
+            form = AvatarFormulario()
+        except:
+            form = AvatarFormulario()
+    return render(request, 'AgregarAvatar.html', {'form':form})
             
